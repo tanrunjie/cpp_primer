@@ -18,6 +18,7 @@ class Stack
         bool push(const Item & item);
         bool pop(Item & item);
         Stack & operator=(const Stack &st);
+        void show() const;
 };
 
 #endif
