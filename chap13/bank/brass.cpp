@@ -4,15 +4,15 @@
 
 using namespace std;
 
-Brass::Brass(const char *s, long an, double bal)
+AcctABC::AcctABC(const char *s, long an, double bal)
 {
-    strncpy(fullName, s, MAX-1);
-    fullName[MAX-1] ='\0';
+    strncpy(fullName,s,MAX-1);
+    fullName[MAX-1] = '\0';
     acctNum = an;
     balance = bal;
 }
 
-void Brass::Deposit(double amt)
+void AcctABC::Deposit(double amt)
 {
     if(amt < 0)
         cout <<"Negative deposit not allowed:deposit is cancelled. \n";
@@ -20,42 +20,49 @@ void Brass::Deposit(double amt)
         balance += amt;
 }
 
+void AcctABC::Withdraw(double amt)
+{
+    balance -= amt;
+}
+
+ios_base::fmtflags AcctABC::SetFormat() const
+{
+    ios_base::fmtflags initialState = cout.setf(ios_base::fixed, ios_base::floatfield);
+    cout.setf(ios_base::showpoint);
+    cout.precision(2);
+    return initialState;
+}
+
+
 void Brass::Withdraw(double amt)
 {
     if(amt<0)
         cout<<"Withdrawal amount must be positive:withdrawal canceled.\n";
-    else if(amt <=balance)
-        balance -= amt;
+    else if(amt <=Balance())
+        AcctABC::Withdraw(amt);
     else
         cout<<"withdrawal amout of $ " << amt <<" exceeds your balance.\n"
         <<"withdrawal canceled.\n";
 }
 
-double Brass::Balance() const
-{
-    return balance;
-}
-
 void Brass::ViewAcct() const
 {
-    ios_base::fmtflags initialState = cout.setf(ios_base::fixed, ios_base::floatfield);
-    cout.setf(ios_base::showpoint);
-    cout.precision(2);
-    cout<<"Client:"<<fullName<<endl;
-    cout<<"Account Number:"<<acctNum<<endl;
-    cout<<"Balance: $"<<balance<<endl;
+    ios_base::fmtflags initialState = SetFormat();
+    cout<<"Client:"<<FullName()<<endl;
+    cout<<"Account Number:"<<AcctNum()<<endl;
+    cout<<"Balance: $"<<Balance()<<endl;
     cout.setf(initialState);
 }
 
 BrassPlus::BrassPlus(const char *s, long an, double bal, double ml, double r)
-:Brass(s,an,bal)
+:AcctABC(s,an,bal)
 {
     maxLoan = ml;
     owesBank=0.0;
     rate = r;
 }
 
-BrassPlus::BrassPlus(const Brass & ba, double ml, double r):Brass(ba)
+BrassPlus::BrassPlus(const Brass & ba, double ml, double r):AcctABC(ba)
 {
     maxLoan = ml;
     owesBank = 0.0;
@@ -64,11 +71,11 @@ BrassPlus::BrassPlus(const Brass & ba, double ml, double r):Brass(ba)
 
 void BrassPlus::ViewAcct() const
 {
-    ios_base::fmtflags initialState = cout.setf(ios_base::fixed, ios_base::floatfield);
-    cout.setf(ios_base::showpoint);
-    cout.precision(2);
+    ios_base::fmtflags initialState = SetFormat();
 
-    Brass::ViewAcct();  // 注意添加作用域，避免递归调用
+    cout <<"BrassPlus Client:"<< FullName()<<endl;
+    cout<<"Account Number:" << AcctNum()<<endl;
+    cout<<"Balance: $" << Balance() << endl;
     cout <<"Maximum loan: $" << maxLoan << endl;
     cout <<"Owed to bank: $" << owesBank << endl;
     cout <<"Loan Rate: "<<100*rate<<"%\n";
@@ -77,13 +84,11 @@ void BrassPlus::ViewAcct() const
 
 void BrassPlus::Withdraw(double amt)
 {
-     ios_base::fmtflags initialState = cout.setf(ios_base::fixed, ios_base::floatfield);
-    cout.setf(ios_base::showpoint);
-    cout.precision(2);
+     ios_base::fmtflags initialState = SetFormat();
 
     double bal = Balance();
     if(amt <= bal)
-        Brass::Withdraw(amt);
+        AcctABC::Withdraw(amt);
     else if(amt<=bal+maxLoan-owesBank)
     {
         double advance = amt - bal;
@@ -91,7 +96,7 @@ void BrassPlus::Withdraw(double amt)
         cout <<"Bank advance: $" << advance <<endl;
         cout <<"Finance charge: $" << advance * rate<<endl;
         Deposit(advance);
-        Brass::Withdraw(amt);        
+        AcctABC::Withdraw(amt);        
     }
     else
         cout <<"Credit limit exceeded. Transaction cancelled.\n";

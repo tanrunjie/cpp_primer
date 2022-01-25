@@ -56,6 +56,13 @@
         "cinttypes": "cpp",
         "typeinfo": "cpp",
         "bit": "cpp",
-        "future": "cpp"
+        "future": "cpp",
+        "list": "cpp",
+        "strstream": "cpp",
+        "set": "cpp",
+        "cfenv": "cpp",
+        "typeindex": "cpp",
+        "valarray": "cpp",
+        "variant": "cpp"
     }
 }

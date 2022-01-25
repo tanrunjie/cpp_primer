@@ -6,7 +6,7 @@ const int LEN = 40;
 using namespace std;
 int main()
 {
-    Brass * p_clients[CLIENTS];
+    AcctABC * p_clients[CLIENTS];
 
     int i;
     for(i= 0; i<CLIENTS; i++)
