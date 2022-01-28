@@ -8,7 +8,7 @@ int main()
 {
     Worker *lolas[SIZE];
     int ct;
-    Queue<Worker*> q;
+    Queue<Worker*> q(SIZE);
     for (ct = 0; ct < SIZE; ct++)
     {
         char choice;
@@ -47,10 +47,8 @@ int main()
     int i;
     for(i=0;i<ct;i++)
     {
-        cout << endl;
-        Worker * w = new SingingWaiter;
-        q.dequeue(w);
-        w->Show();
+        // q.dequeue(lolas[i]); Error! TO BE SLOVED.
+        lolas[i]->Show();
     }
 
     for(i=0;i<ct; i++)

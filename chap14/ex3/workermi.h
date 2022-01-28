@@ -59,7 +59,7 @@ public:
             return false;
         else
         {
-            it = items[queuesize];
+            it = items[queuesize-1];
             queuesize--;
         }
     }
