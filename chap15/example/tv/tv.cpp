@@ -1,4 +1,4 @@
-#include "tv.h"
+#include "tvfm.h"
 #include <iostream>
 
 bool Tv::volup()
@@ -28,7 +28,7 @@ void Tv::chanup()
     if(channel < maxchannel)
         channel++;
     else
-        channel = 1; // 循环
+        channel = 1; // 重置
 }
 
 void Tv::chandown()

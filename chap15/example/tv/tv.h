@@ -17,7 +17,7 @@ public:
     enum {Antenna, Cable};
     enum {TV, VCR};
 
-    Tv(int s = Off, int mc = 100):state(Off), volume(5),
+    Tv(int s = Off, int mc = 100):state(s), volume(5),
     maxchannel(mc), channel(2), mode(Cable), input(TV){}
     void onoff(){state = (state==On)? Off:On;}
     bool volup();
