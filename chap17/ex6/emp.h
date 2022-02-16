@@ -1,6 +1,20 @@
+#ifndef EMP_H
+#define EMP_H
+
 #include <iostream>
+#include <fstream>
+
 #include <string>
 using namespace std;
+
+enum classkind
+{
+    Zero,
+    Employee,
+    Manager,
+    Fink,
+    HighFink
+};
 class abstr_emp
 {
 private:
@@ -11,13 +25,13 @@ private:
 protected:
     virtual void Data() const
     {
-        cout <<"fname: "<<fname << endl;
-        cout <<"lname: " << lname << endl;
-        cout <<"job: " << job << endl;
+        cout << "fname: " << fname << endl;
+        cout << "lname: " << lname << endl;
+        cout << "job: " << job << endl;
     }
     virtual void Get()
     {
-        cout <<"Please input fname,lname,job: ";
+        cout << "Please input fname,lname,job: ";
         cin >> fname >> lname >> job;
     }
 
@@ -27,12 +41,22 @@ public:
         : fname(fn), lname(ln), job(j) {}
     abstr_emp(const abstr_emp &a)
         : fname(a.fname), lname(a.lname), job(a.job) {}
-    
+
     virtual ~abstr_emp() = 0;
     virtual void SetAll() = 0;
     virtual void ShowAll() const = 0;
-
-
+    virtual void setall(ifstream &fin)
+    {
+        getline(fin, fname);
+        getline(fin, lname);
+        getline(fin, job);
+    }
+    virtual void writeall(ofstream &fout)
+    {
+        fout << fname << endl
+             << lname << endl
+             << job << endl;
+    }
 
     friend ostream &operator<<(ostream &os, const abstr_emp &e)
     {
@@ -49,14 +73,20 @@ public:
              const string &j) : abstr_emp(fn, ln, j) {}
     void ShowAll() const
     {
-        cout <<"Category: employee: " << endl;
+        cout << "Category: employee: " << endl;
         abstr_emp::ShowAll();
     }
     void SetAll()
     {
         abstr_emp::SetAll();
     }
+    virtual void setall(ifstream &fin) { abstr_emp::setall(fin); }
 
+    virtual void writeall(ofstream &fout)
+    {
+        fout << Employee << endl;
+        abstr_emp::writeall(fout);
+    }
 };
 
 class manager : virtual public abstr_emp
@@ -69,13 +99,14 @@ protected:
     int &InChargeOf() { return inchargeof; }
     void Data() const
     {
-        cout <<"inchargeof: " << inchargeof << endl;
+        cout << "inchargeof: " << inchargeof << endl;
     }
     void Get()
     {
-        cout <<"Please input inchargeof: ";
+        cout << "Please input inchargeof: ";
         cin >> inchargeof;
     }
+
 public:
     manager() : abstr_emp(), inchargeof(0) {}
     manager(const string &fn, const string &ln,
@@ -86,7 +117,7 @@ public:
         : abstr_emp(m), inchargeof(m.InChargeOf()) {}
     void ShowAll() const
     {
-        cout <<"Category: manager" << endl;
+        cout << "Category: manager" << endl;
         abstr_emp::ShowAll();
         Data();
     }
@@ -94,6 +125,18 @@ public:
     {
         abstr_emp::SetAll();
         Get();
+    }
+    virtual void setall(ifstream &fin)
+    {
+        abstr_emp::setall(fin);
+        fin >> inchargeof;
+        fin.ignore();
+    }
+    virtual void writeall(ofstream &fout)
+    {
+        fout << Manager << endl;
+        abstr_emp::writeall(fout);
+        fout << inchargeof << endl;
     }
 };
 
@@ -107,13 +150,14 @@ protected:
     string &ReportsTo() { return reportsto; }
     void Data() const
     {
-        cout <<"reportsto: " << reportsto << endl;
+        cout << "reportsto: " << reportsto << endl;
     }
     void Get()
     {
-        cout <<"Please input reportsto: " ;
+        cout << "Please input reportsto: ";
         cin >> reportsto;
     }
+
 public:
     fink() : abstr_emp(), reportsto("") {}
     fink(const string &fn, const string &ln,
@@ -125,18 +169,31 @@ public:
         : abstr_emp(e), reportsto(e.ReportsTo()) {}
     void ShowAll() const
     {
-        cout <<"Category: fink" << endl;
+        cout << "Category: fink" << endl;
         abstr_emp::ShowAll();
         Data();
     }
     void SetAll()
     {
+        cout <<"Fink setall"<< endl;
         abstr_emp::SetAll();
         Get();
     }
+    virtual void setall(ifstream &fin)
+    {
+        abstr_emp::setall(fin);
+        fin >> reportsto;
+        fin.ignore();
+    }
+    virtual void writeall(ofstream &fout)
+    {
+        fout << Fink << endl;
+        abstr_emp::writeall(fout);
+        fout << reportsto << endl;
+    }
 };
 
-class highfink: public manager, public fink
+class highfink : public manager, public fink
 {
 
 protected:
@@ -145,26 +202,27 @@ protected:
         manager::Data();
         fink::Data();
     }
-    void Get() 
+    void Get()
     {
         manager::Get();
         fink::Get();
     }
+
 public:
-    highfink():abstr_emp(),manager(),fink(){}
-    highfink(const string &fn, const string &ln,const string &j,const string &rpo, int ico)
-    :abstr_emp(fn,ln,j),manager(fn,ln,j,ico),fink(fn,ln,j,rpo){}
-    highfink(const abstr_emp & e, const string & rpo, int ico)
-    :abstr_emp(e), manager(e,ico), fink(e,rpo){}
-    highfink(const fink & f, int ico)
-    :abstr_emp(f), manager(f,ico), fink(f){}
-    highfink(const manager &m, const string & rpo)
-    :abstr_emp(m),manager(m),fink(m,rpo){}
-    highfink(const highfink & h)
-    :abstr_emp(h), manager(h), fink(h){}
+    highfink() : abstr_emp(), manager(), fink() {}
+    highfink(const string &fn, const string &ln, const string &j, const string &rpo, int ico)
+        : abstr_emp(fn, ln, j), manager(fn, ln, j, ico), fink(fn, ln, j, rpo) {}
+    highfink(const abstr_emp &e, const string &rpo, int ico)
+        : abstr_emp(e), manager(e, ico), fink(e, rpo) {}
+    highfink(const fink &f, int ico)
+        : abstr_emp(f), manager(f, ico), fink(f) {}
+    highfink(const manager &m, const string &rpo)
+        : abstr_emp(m), manager(m), fink(m, rpo) {}
+    highfink(const highfink &h)
+        : abstr_emp(h), manager(h), fink(h) {}
     void ShowAll() const
     {
-        cout <<"Category: highfink" << endl;
+        cout << "Category: highfink" << endl;
         abstr_emp::Data();
         Data();
     }
@@ -173,4 +231,21 @@ public:
         abstr_emp::Get();
         Get();
     }
+    virtual void setall(ifstream &fin)
+    {
+        abstr_emp::setall(fin);
+        fin >> manager::InChargeOf();
+        fin.ignore();
+        fin >> fink::ReportsTo();
+        fin.ignore();
+    }
+    virtual void writeall(ofstream &fout)
+    {
+        fout << HighFink << endl;
+        abstr_emp::writeall(fout);
+        fout << manager::InChargeOf() << endl;
+        fout << fink::ReportsTo() << endl;
+    }
 };
+
+#endif
